@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .sidebar {
+      background: #ffffff;
+      border-right: 1px solid #dee2e6;
+      min-height: 100vh;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    }
+    .networks .btn {
+      margin-bottom: 8px;
+      text-align: left;
+    }
+
+
+    .file-tree {
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 15px;
+      background: #ffffff;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+      width: 100%; /* Додаємо ширину на всю доступну область */
+    }
+
+    .file-tree ul {
+      list-style-type: none;
+      padding-left: 1rem;
+    }
+    .file-tree li {
+      /*display: flex;*/
+      /*align-items: center;*/
+      /*justify-content: space-between;*/
+      cursor: pointer;
+      padding: 5px 0;
+    }
+    .file-tree li.file{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+    }
+
+        #graph {
+      width:initial;
+      height: 600px;
+      border: 1px solid lightgray;
+    }
+
+    .folder > .folder-name::before {
+      content: "📁 ";
+      margin-right: 5px;
+    }
+    .folder.open > .folder-name::before {
+      content: "📂 ";
+    }
+    .file-tree li.file > .file-name::before {
+      content: "📄 ";
+      margin-right: 5px;
+    }
+    .file-progress {
+      width: 30%;
+      margin-left: 10px;
+    }
+    .content-area {
+      padding: 20px;
+    }
+    .participants-table, .info-block {
+      background: #ffffff;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      height: 100%;
+    }
+    .fixed-width-block {
+      min-width: 600px;
+      max-width: 600px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3 sidebar">
+      <h4 class="mb-4">PeeringSync</h4>
+        <hr>
+      <div class="networks mb-4">
+        <p class="fw-bold">Мережі:</p>
+
+          {% if networks %}
+              {% for name, id in networks %}
+                  {% if id == network_id %}
+                       <a class="btn  btn-secondary  w-100"
+                       style="cursor: unset">🌐 {{ name }}</a>
+                      {% else %}
+                     <a href="{{ id }}" class="btn btn-light  w-100">🌐 {{ name }}</a>
+                  {% endif %}
+              {% endfor %}
+          {% endif %}
+
+        <button class="btn btn-primary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#addNetwork">+ Додати мережу</button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+        <div class="col-md-9 content-area ">
+
+
+        {% block content %}{% endblock %}
+
+
+
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="add_peers" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+        <form action="/add_peers" method="post">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Додавання нових учасників</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <div class="mb-3">
+  <label for="exampleFormControlTextarea1" class="form-label">Адреси нових учасників</label>
+  <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="peers_addresses"></textarea>
+</div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Відміна</button>
+          <input type="hidden" value="{{ network_id }}" name="network_id">
+        <button type="submit" class="btn btn-primary">Відправити</button>
+      </div>
+        </form>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="deleteNetwork" tabindex="-1" aria-labelledby="deleteNetworkLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="deleteNetworkLabel">Видалити мережу</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Ви впевнені?
+      </div>
+      <div class="modal-footer">
+            <form action="/delete_network" method="post">
+          <input type="hidden" value="{{ network_id }}" name="network_id">
+          <button type="submit" class="btn btn-danger">Так</button>
+              </form>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ні</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal modal-lg fade " id="addNetwork" tabindex="-1" aria-labelledby="addNetworkLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <form action="/add_network" method="post" enctype="multipart/form-data">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="addNetworkLabel">Додавання мережі</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+        <div class="mb-3">
+          <label for="exampleFormControlInput1" class="form-label">Назва мережі:</label>
+          <input type="text" class="form-control" id="exampleFormControlInput1" name="network_name" >
+        </div>
+        <div class="mb-3">
+          <label for="exampleFormControlInput1" class="form-label">Шлях до теки збереження:</label>
+          <input type="text" class="form-control" id="exampleFormControlInput2" name="save_path">
+        </div>
+        <hr>
+          <div class="mb-3">
+  <label for="public_key" class="form-label">Публічний ключ:</label>
+  <input class="form-control form-control-sm" id="public_key" name="public_key" type="file">
+</div>
+          <div class="mb-3">
+  <label for="private_key" class="form-label">Приватний ключ:</label>
+  <input class="form-control form-control-sm" id="private_key" name="private_key" type="file">
+</div>
+
+<div class="form-check form-switch">
+  <input class="form-check-input" type="checkbox" name="create_new_keys" role="switch" id="switchCheckKeysCreate">
+  <label class="form-check-label" for="switchCheckKeysCreate">Згенерувати нові</label>
+</div>
+
+          <hr>
+                    <div class="mb-3">
+  <label for="exampleFormControlTextarea1" class="form-label">Адреси нових учасників</label>
+  <textarea class="form-control" id="exampleFormControlTextare3" name="peers_addresses" rows="3"></textarea>
+</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Відміна</button>
+              <button type="submit" class="btn btn-primary">Додати</button>
+      </div>
+            </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="updateFiles" tabindex="-1" aria-labelledby="updateFilesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="updateFilesLabel">Оновлення файлів</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Оновити файли роздачі?
+      </div>
+        <form action="/update_files" method="post">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ні</button>
+                <input type="hidden" value="{{ network_id }}" name="network_id">
+                  <button type="submit" class="btn btn-primary">Так</button>
+              </div>
+
+        </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="showMap" tabindex="-1" aria-labelledby="showMapLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="showMapLabel">Карта мережі</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+    <div id="graph"></div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Simple Tree Toggle Script -->
+<script>
+function toggleFolder(element) {
+  event.stopPropagation();
+  let ul = element.querySelector('ul');
+  if (ul) {
+    ul.style.display = (ul.style.display === 'none') ? 'block' : 'none';
+    element.classList.toggle('open');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const toggleSwitch = document.getElementById('switchCheckKeysCreate');
+  const field1 = document.getElementById('public_key');
+  const field2 = document.getElementById('private_key');
+
+  field1.disabled = false;
+  field2.disabled = false;
+
+  toggleSwitch.addEventListener('change', function() {
+    if(!this.checked) {
+      field1.disabled = false;
+      field2.disabled = false;
+    } else {
+      field1.disabled = true;
+      field2.disabled = true;
+    }
+  });
+});
+</script>
+
+    <script type="text/javascript" src="https://unpkg.com/vis-network@latest/dist/vis-network.min.js"></script>
+
+     <script>
+    const nodes = new vis.DataSet([
+        {% for n in nodes %}
+            { id: "{{ n }}", label: "{{ nodes_labels[n][0] }}", {% if  nodes_labels[n][1]%}color:"#baeb83" {% endif %} },
+        {% endfor %}
+
+    ]);
+
+    const edges = new vis.DataSet([
+        {% for f,t in edges %}
+            { from: "{{ f }}", to: "{{ t }}", arrows: "to" },
+        {% endfor %}
+
+    ]);
+
+    const container = document.getElementById('graph');
+    const data = {
+      nodes: nodes,
+      edges: edges
+    };
+    const options = {
+        nodes: {
+          shape: "box",
+        },
+        arrows: {
+          to: { enabled: true, scaleFactor: 1 } // масштаб стрілки
+        },
+    };
+    new vis.Network(container, data, options);
+  </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js" integrity="sha384-VQqxDN0EQCkWoxt/0vsQvZswzTHUVOImccYmSyhJTp7kGtPed0Qcx8rK9h9YEgx+" crossorigin="anonymous"></script>
+</body>
+</html>

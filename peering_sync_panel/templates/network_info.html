@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Test{% endblock %}
+
+{% block content %}
+      <!-- Files Tree -->
+      <div class="file-tree">
+        <h5 >Файли:</h5>
+        <ul id="fileList">
+
+            {% for f in files%}
+          <li class="file">
+            <span class="file-name">{{ f[0] }}</span>
+            <div class="progress file-progress" role="progressbar" aria-valuenow="{{ f[1] }}" aria-valuemin="0" aria-valuemax="100" style="height: 20px">
+              <div class="progress-bar" style="width: {{ f[1] }}%">{{ f[1] }}%</div>
+            </div>
+          </li>
+            {% endfor %}
+
+        </ul>
+          <form method="post" action="/open_folder" style="display: inline-block">
+               <input type="hidden" value={{ network_id }} name="network_id">
+        <button class="btn btn-outline-secondary mt-2" type="submit">Відкрити теку</button>
+              </form>
+        <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#updateFiles">Оновити файли</button>
+      </div>
+
+      <!-- Info and Participants -->
+      <div class="row">
+        <div class="col-md-6 d-flex flex-column">
+          <div class="info-block mb-4">
+            <h5>Загальна інформація</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">Дата файлів: <strong>{{ statistic["seed_ver"] }}</strong></li>
+              <li class="list-group-item">Загальний розмір: <strong>{{ statistic["total_size"] }}</strong></li>
+              <li class="list-group-item">Завантажено: <strong>{{ statistic["loaded"] }}</strong></li>
+              <li class="list-group-item">Відвантажено: <strong>{{ statistic["uploaded_per_session"]}}</strong></li>
+              <li class="list-group-item">Тека збереження: <strong>{{ statistic["file_path"]}}</strong></li>
+              <li class="list-group-item">Статус: <strong>{{ statistic["is_download"] }}</strong></li>
+              <li class="list-group-item">Кількість учасників: <strong>{{ statistic["peers_count"] }}</strong></li>
+              <li class="list-group-item">Адреса: <strong>{{ own_address }}</strong></li>
+                <li class="list-group-item">Власний ID: <strong>{{ own_peer_id }}</strong></li>
+            </ul>
+              <form action="/export_network" method="post" style="display: inline-block">
+                  <input type="hidden" value={{ network_id }} name="network_id">
+                  <button type="submit" class="btn btn-outline-primary mt-2">Експортувати ключі</button>
+              </form>
+
+            <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#showMap" >Карта мережі</button>
+          </div>
+        </div>
+
+        <div class="col-md-6 d-flex flex-column">
+          <div class="participants-table mb-4">
+            <h5>Підключені учасники</h5>
+            <div class="table-responsive">
+              <table class="table table-hover table-sm mb-0">
+                <thead>
+                  <tr><th>#</th><th>IP</th><th>Port</th><th>Peer ID</th></tr>
+                </thead>
+                <tbody>
+                    {% if nearest_peers%}
+                        {% for i, np in nearest_peers%}
+                            <tr><td>{{ i }}</td><td>{{ np[0] }}</td><td>{{ np[1] }}</td><td>{{ np[2] }}</td></tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+              </table>
+            </div>
+              <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#add_peers">Додати</button>
+          </div>
+        </div>
+      </div>
+
+        <div class="row">
+            <button type="button" class="btn btn-danger mt-2 w-auto" data-bs-toggle="modal" data-bs-target="#deleteNetwork">Видалити мережу</button>
+        </div>
+
+{% endblock %}

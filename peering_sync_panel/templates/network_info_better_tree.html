@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Test{% endblock %}
+
+{% block content %}
+      <!-- Files Tree -->
+      <div class="file-tree">
+        <h5 >Файли:</h5>
+        <ul id="fileList">
+          <li class="folder" onclick="toggleFolder(this)">
+              <div class="folder" style="display: flex;       align-items:center;
+                    justify-content: space-between;">
+                          <span class="folder-name">documents</span>
+                          <div class="progress file-progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 20px">
+  <div class="progress-bar" style="width: 50%">50%</div>
+</div>
+              </div>
+            <ul style="display: none;">
+              <li class="file">
+                <span class="file-name">document1.xml</span>
+<div class="progress file-progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 20px">
+  <div class="progress-bar" style="width: 50%">50%</div>
+</div>
+              </li>
+              <li class="file">
+                <span class="file-name">document2.xml</span>
+<div class="progress file-progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 20px">
+  <div class="progress-bar" style="width: 50%">50%</div>
+</div>
+              </li>
+            </ul>
+          </li>
+          <li class="folder" onclick="toggleFolder(this)">
+              <div class="folder" style="display: flex;       align-items:center;
+                    justify-content: space-between;">
+                          <span class="folder-name">Video</span>
+                          <div class="progress file-progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 20px">
+  <div class="progress-bar" style="width: 50%">50%</div>
+</div>
+              </div>
+            <ul style="display: none;">
+              <li class="file">
+                <span class="file-name">test.mp4</span>
+                <div class="progress file-progress">
+                  <div class="progress-bar" style="width: 90%;"></div>
+                </div>
+              </li>
+            </ul>
+          </li>
+          <li  onclick="toggleFolder(this)">
+              <div class="folder" style="display: flex;       align-items:center;
+                    justify-content: space-between;">
+                          <span class="folder-name">music</span>
+                          <div class="progress file-progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 20px">
+  <div class="progress-bar" style="width: 50%">50%</div>
+</div>
+              </div>
+            <ul style="display: none;">
+              <li class="folder" onclick="toggleFolder(this)">
+                <div class="folder" style="display: flex;       align-items:center;
+                    justify-content: space-between;">
+                          <span class="folder-name">old</span>
+                          <div class="progress file-progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 20px">
+  <div class="progress-bar" style="width: 50%">50%</div>
+</div>
+              </div>
+                <ul style="display: none;">
+                  <li class="file">
+                    <span class="file-name">happy new year.mp3</span>
+<div class="progress file-progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 20px">
+  <div class="progress-bar" style="width: 50%">50%</div>
+</div>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li class="file">
+            <span class="file-name">smile.png</span>
+<div class="progress file-progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 20px">
+  <div class="progress-bar" style="width: 50%">50%</div>
+</div>
+          </li>
+          <li class="file">
+            <span class="file-name">diploma.docx</span>
+<div class="progress file-progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 20px">
+  <div class="progress-bar" style="width: 50%">50%</div>
+</div>
+          </li>
+          <li class="file">
+            <span class="file-name">labs.zip</span>
+<div class="progress file-progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 20px">
+  <div class="progress-bar" style="width: 50%">50%</div>
+</div>
+          </li>
+          <li class="file">
+            <span class="file-name">README.txt</span>
+<div class="progress file-progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="height: 20px">
+  <div class="progress-bar" style="width: 50%">50%</div>
+</div>
+          </li>
+        </ul>
+          <form method="post" action="/open_folder" style="display: inline-block">
+               <input type="hidden" value={{ network_id }} name="network_id">
+        <button class="btn btn-outline-secondary mt-2" type="submit">Відкрити теку</button>
+              </form>
+        <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#updateFiles">Оновити файли</button>
+      </div>
+
+      <!-- Info and Participants -->
+      <div class="row">
+        <div class="col-md-6 d-flex flex-column">
+          <div class="info-block mb-4">
+            <h5>Загальна інформація</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">Дата файлів: <strong>{{ statistic["seed_ver"] }}</strong></li>
+              <li class="list-group-item">Загальний розмір: <strong>{{ statistic["total_size"] }}</strong></li>
+              <li class="list-group-item">Завантажено: <strong>{{ statistic["loaded"] }}</strong></li>
+              <li class="list-group-item">Відвантажено: <strong>{{ statistic["uploaded_per_session"]}}</strong></li>
+              <li class="list-group-item">Тека збереження: <strong>{{ statistic["file_path"]}}</strong></li>
+              <li class="list-group-item">Статус: <strong>{{ statistic["is_download"] }}</strong></li>
+              <li class="list-group-item">Кількість учасників: <strong>{{ statistic["peers_count"] }}</strong></li>
+              <li class="list-group-item">Адреса: <strong>{{ own_address }}</strong></li>
+                <li class="list-group-item">Власний ID: <strong>{{ own_peer_id }}</strong></li>
+            </ul>
+              <form action="/export_network" method="post" style="display: inline-block">
+                  <input type="hidden" value={{ network_id }} name="network_id">
+                  <button type="submit" class="btn btn-outline-primary mt-2">Експортувати ключі</button>
+              </form>
+
+            <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#showMap" >Карта мережі</button>
+          </div>
+        </div>
+
+        <div class="col-md-6 d-flex flex-column">
+          <div class="participants-table mb-4">
+            <h5>Підключені учасники</h5>
+            <div class="table-responsive">
+              <table class="table table-hover table-sm mb-0">
+                <thead>
+                  <tr><th>#</th><th>IP</th><th>Port</th><th>Завантажено</th><th>Відвантажено</th><th>Швидкість</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>1</td><td>192.168.0.20</td><td>25165</td><td>12Gb</td><td>1Gb</td><td>4Mb | 11Mb/s</td></tr>
+                  <tr><td>2</td><td>192.168.0.21</td><td>15565</td><td>1Gb</td><td>0Kb</td><td>3Mb | 3Mb/s</td></tr>
+                  <tr><td>3</td><td>192.168.0.22</td><td>45565</td><td>2Gb</td><td>1Mb</td><td>23Mb | 0Mb/s</td></tr>
+                  <tr><td>4</td><td>192.168.0.23</td><td>25568</td><td>2Gb</td><td>200Kb</td><td>1Mb | 1Mb/s</td></tr>
+                  <tr><td>5</td><td>192.168.0.24</td><td>15355</td><td>3Gb</td><td>1Gb</td><td>26Mb | 18Mb/s</td></tr>
+                  <tr><td>6</td><td>192.168.0.25</td><td>55565</td><td>4.2Gb</td><td>1Gb</td><td>4Mb | 4Mb/s</td></tr>
+                  <tr><td>7</td><td>192.168.0.26</td><td>15565</td><td>4Gb</td><td>2Gb</td><td>7Mb | 1Mb/s</td></tr>
+                  <tr><td>8</td><td>192.168.0.27</td><td>25535</td><td>1Gb</td><td>3Gb</td><td>800kb | 10Mb/s</td></tr>
+                  <tr><td>9</td><td>192.168.0.28</td><td>21335</td><td>50Mb</td><td>4.1Gb</td><td>11Mb | 14Mb/s</td></tr>
+                  <tr><td>10</td><td>192.168.0.2</td><td>25765</td><td>125Mb</td><td>5Gb</td><td>43Mb | 60Mb/s</td></tr>
+                </tbody>
+              </table>
+            </div>
+              <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#add_peers">Додати</button>
+          </div>
+        </div>
+      </div>
+
+        <div class="row">
+            <button type="button" class="btn btn-danger mt-2 w-auto" data-bs-toggle="modal" data-bs-target="#deleteNetwork">Видалити мережу</button>
+        </div>
+
+{% endblock %}
